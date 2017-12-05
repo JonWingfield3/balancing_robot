@@ -186,8 +186,10 @@ static int mpu6050_data_collector(void) {
 				- pitch_offset_;
 
 		scheduler_set_pending(MOTOR_CONTROL_UPDATER);
+		return 0;
+	} else {
+		return -1;
 	}
-	return 0;
 }
 
 static bool comm_test(void) {

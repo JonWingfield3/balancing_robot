@@ -13,7 +13,9 @@
 
 #include "../include/balancing_robot.h"
 #include "../include/interrupts.h"
+#include "../include/led.h"
 #include "../include/LPC11xx.h"
+#include "../include/motor_controller.h"
 #include "../include/profiler.h"
 #include "../include/utils.h"
 
@@ -74,8 +76,6 @@ void scheduler_init(void) {
 	// enable interrupts from timer in NVIC. Set to medium priority
 	NVIC_EnableIRQ(TIMER_16_0_IRQn);
 	NVIC_SetPriority(TIMER_16_0_IRQn, 2);
-
-	//scheduler_init_task(SYSTEM_IDLE_TASK, system_idle, 1);
 }
 
 void scheduler_run(void) {
@@ -84,8 +84,10 @@ void scheduler_run(void) {
 
 			pending_task_mask_ &= ~BIT(task_idx);
 			const int task_ret_val = tasks_[task_idx].task_callback();
-			if (task_ret_val == -1) {	// if task errors out then disable it.
-				scheduler_disable_task(task_idx);
+			if (task_ret_val == -1) {
+				// panic.
+				motor_controller_enable(false);
+				led_set_heartbeat_color(RED_LED);
 			}
 			if (tasks_[task_idx].periodicity != 0) {
 				tasks_[task_idx].ticks_til_next_call = tasks_[task_idx].periodicity;
