@@ -46,6 +46,8 @@ int scheduler_set_task_periodicity(task_id_t task_id, uint32_t periodicity);
 
 // scheduler utility functions.
 uint32_t scheduler_get_system_time_ms(void);
+
+// TODO: test delay functions and scheduler changes.
 void scheduler_delay_ms(uint32_t ms);
 void scheduler_delay_us(uint32_t us);
 

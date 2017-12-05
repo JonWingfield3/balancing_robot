@@ -30,10 +30,12 @@ typedef struct {
 static volatile task_t tasks_[NUM_TASKS];
 static volatile uint32_t enabled_task_mask_;
 static volatile uint32_t pending_task_mask_;
+static volatile uint32_t system_time_ms_;
 
 void TIMER16_0_IRQHandler(void) {
 	// clear the MR0 interrupt by writing 1 to register
 	LPC_TMR16B0->IR |= BIT(0);
+	++system_time_ms_;
 	// The loop decrements a tasks's timer only if task is enabled,
 	// and it is either periodic or has a non-zero timer associated with it,
 	// We set the task as pending if timer has expired. A periodic task's
@@ -62,8 +64,9 @@ void scheduler_init(void) {
 	// set PR so that PC counts microseconds. TC counts in milliseconds.
 	LPC_TMR16B0->PR = (SystemCoreClock / 1000000 - 1);
 	LPC_TMR16B0->MR0 = (1000000 / SCHEDULER_FREQUENCY - 1);
-	// reset counter and enable timer/counter for counting
+	// reset counters and enable timer/counter for counting
 	LPC_TMR16B0->TC = 0;
+	LPC_TMR16B0->PC = 0;
 	LPC_TMR16B0->TCR = BIT(0);
 	// enable interrupts from timer in NVIC. Set to medium priority
 	NVIC_EnableIRQ(TIMER_16_0_IRQn);
@@ -164,21 +167,21 @@ int scheduler_reset_task_timer(task_id_t task_id) {
 }
 
 uint32_t scheduler_get_system_time_ms(void) {
-	return LPC_TMR16B0->TC;
+	return system_time_ms_;
 }
 
 void scheduler_delay_ms(uint32_t ms) {
-	float system_time_ms = LPC_TMR16B0->TC + (LPC_TMR16B0->PC / 1000.0);
+	float system_time_ms = system_time_ms_ + (LPC_TMR16B0->TC / 1000.0);
 	const float system_stop_time_ms = system_time_ms + ms;
 	while (system_time_ms < system_stop_time_ms) {
-		system_time_ms = LPC_TMR16B0->TC + (LPC_TMR16B0->PC / 1000.0);
+		system_time_ms = system_time_ms_ + (LPC_TMR16B0->TC / 1000.0);
 	}
 }
 
 void scheduler_delay_us(uint32_t us) {
-	float system_time_ms = LPC_TMR16B0->TC + (LPC_TMR16B0->PC / 1000.0);
+	float system_time_ms = system_time_ms_ + (LPC_TMR16B0->TC / 1000.0);
 	const float system_stop_time_ms = system_time_ms + (us / 1000.0);
 	while (system_time_ms < system_stop_time_ms) {
-		system_time_ms = LPC_TMR16B0->TC + (LPC_TMR16B0->PC / 1000.0);
+		system_time_ms = system_time_ms_ + (LPC_TMR16B0->TC / 1000.0);
 	}
 }
