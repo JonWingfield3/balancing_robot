@@ -10,10 +10,11 @@
 // 02/10/2011	   SOH Madgwick	   Optimised for reduced CPU load
 //
 //=====================================================================================================
+
 #ifndef MADGWICK_H_
 #define MADGWICK_H_
 
-#include "../include/mpu6050.h"
+#include <mpu6050.h>
 
 typedef struct {
 	float q0;

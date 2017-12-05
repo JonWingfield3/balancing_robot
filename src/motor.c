@@ -5,17 +5,18 @@
  *      Author: jonathanwingfield
  */
 
-#include "../include/motor.h"
+#include <motor.h>
 
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../include/gpio.h"
-#include "../include/LPC11xx.h"
-#include "../include/pwm.h"
-#include "../include/scheduler.h"
-#include "../include/utils.h"
+#include <LPC11xx.h>
+
+#include <gpio.h>
+#include <pwm.h>
+#include <scheduler.h>
+#include <utils.h>
 
 typedef enum {
 	FORWARD_DIRECTION, REVERSE_DIRECTION, NUM_DIRECTIONS, HALTED

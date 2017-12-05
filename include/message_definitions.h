@@ -8,10 +8,10 @@
 #ifndef MESSAGE_DEFINITIONS_H_
 #define MESSAGE_DEFINITIONS_H_
 
-#include "../include/motor_controller.h"
-#include "../include/pid.h"
-#include "../include/scheduler.h"
-#include "../include/utils.h"
+#include <motor_controller.h>
+#include <pid.h>
+#include <scheduler.h>
+#include <utils.h>
 
 /* General Message Definitions */
 ///////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,9 @@ typedef enum {
 
 	MADGWICK_MESSAGE_SET_BETA_GAIN,
 
+	SYSTEM_MESSAGE_RESET,
+  SYSTEM_MESSAGE_STATUS,
+
 	MESSAGE_ID_LAST,
 	NUM_MESSAGE_IDS = MESSAGE_ID_LAST
 } message_id_t;
@@ -53,7 +56,7 @@ typedef struct PACKED {
 typedef enum {
 	NO_ERR,
 	BAD_PLD_LEN,
-	BAD_ARGS
+	PANIC_MODE,
 }status_t;
 
 typedef struct PACKED {

@@ -11,7 +11,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "pid.h"
+#include <pid.h>
 
 typedef enum {
 	FORWARD_COMMAND,

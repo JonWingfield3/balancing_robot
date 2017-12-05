@@ -5,15 +5,16 @@
  *      Author: jonathanwingfield
  */
 
-#include "../include/uart.h"
+#include <uart.h>
 
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../include/LPC11xx.h"
-#include "../include/scheduler.h"
-#include "../include/utils.h"
-#include "../include/ring_buffer.h"
+#include <LPC11xx.h>
+
+#include <ring_buffer.h>
+#include <scheduler.h>
+#include <utils.h>
 
 static volatile ring_buffer_t outbound_ring_buf_;
 static const uint32_t OUTBOUND_RING_BUF_SIZE = 256;

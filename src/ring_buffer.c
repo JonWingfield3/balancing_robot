@@ -5,13 +5,13 @@
  *      Author: jonathanwingfield
  */
 
-#include "../include/ring_buffer.h"
+#include <ring_buffer.h>
 
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../include/interrupts.h"
+#include <interrupts.h>
 
 void ring_buffer_init(volatile ring_buffer_t* ring_buf, uint32_t size) {
 	ring_buf->buffer = (uint8_t*) malloc(size);

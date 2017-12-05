@@ -10,9 +10,6 @@
 
 #include <stdint.h>
 
-#include "../include/utils.h"
-#include "../include/ring_buffer.h"
-
 #define BAUD_RATE (115200)
 
 void uart_init(void);

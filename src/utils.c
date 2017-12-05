@@ -5,7 +5,7 @@
  *      Author: jonathanwingfield
  */
 
-#include "../include/utils.h"
+#include <utils.h>
 
 #include <stdbool.h>
 #include <stdint.h>

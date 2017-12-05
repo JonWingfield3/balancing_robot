@@ -12,11 +12,11 @@
 //
 //=====================================================================================================
 
-#include "../include/madgwick.h"
+#include <madgwick.h>
 
 #include <math.h>
 
-#include "../include/utils.h"
+#include <utils.h>
 
 static float sample_frequency_ = 60.0;
 static float beta_ = 0.1f; // 2 * proportional gain (Kp)

@@ -5,8 +5,11 @@
  *      Author: jonathanwingfield
  */
 
-#include "../include/pwm.h"
-#include "../include/utils.h"
+#include <pwm.h>
+
+#include <LPC11xx.h>
+
+#include <utils.h>
 
 #define NUM_PWM_PINS (2)
 #define PWM_TIMER (LPC_TMR16B1)

@@ -5,10 +5,11 @@
  *      Author: jonathanwingfield
  */
 
-#include "../include/watchdog.h"
+#include <watchdog.h>
 
-#include "../include/LPC11xx.h"
-#include "../include/utils.h"
+#include <LPC11xx.h>
+
+#include <utils.h>
 
 void watchdog_init(void) {
 	LPC_SYSCON->SYSAHBCLKCTRL |= BIT(15);

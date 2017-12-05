@@ -5,13 +5,13 @@
  *      Author: jonathanwingfield
  */
 
-#include "../include/filters.h"
+#include <filters.h>
 
 #include <math.h>
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../include/utils.h"
+#include <utils.h>
 
 #ifndef M_PI
 #define M_PI (3.141592653589793)

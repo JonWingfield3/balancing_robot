@@ -5,27 +5,25 @@
  *      Author: jonathanwingfield
  */
 
-#include "../include/message_service.h"
+#include <message_service.h>
 
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../include/adc.h"
-#include "../include/balancing_robot.h"
-#include "../include/led.h"
-#include "../include/madgwick.h"
-#include "../include/message_definitions.h"
-#include "../include/motor.h"
-#include "../include/motor_controller.h"
-#include "../include/mpu6050.h"
-#include "../include/packed_float.h"
-#include "../include/pid.h"
-#include "../include/pwm.h"
-#include "../include/scheduler.h"
-#include "../include/uart.h"
-#include "../include/uart_transport.h"
-#include "../include/utils.h"
+#include <balancing_robot.h>
+#include <led.h>
+#include <madgwick.h>
+#include <message_definitions.h>
+#include <motor.h>
+#include <motor_controller.h>
+#include <mpu6050.h>
+#include <packed_float.h>
+#include <pid.h>
+#include <pwm.h>
+#include <scheduler.h>
+#include <uart_transport.h>
+#include <utils.h>
 
 static int message_handler(void) {
 	const message_t* recvd_msg = uart_transport_get_message();
@@ -35,7 +33,7 @@ static int message_handler(void) {
 	rsp_msg.msg_id = recvd_msg->msg_id;
 	rsp_msg.pld_len = sizeof(status_response_t);
 	status_response_t *status_rsp = (status_response_t*) rsp_msg.pld;
-	status_rsp->status = NO_ERR;
+	status_rsp->status = system_panicked() ? PANIC_MODE : NO_ERR;
 
 	switch (recvd_msg->msg_id) {
 	case MOTOR_CONTROL_MESSAGE_SET_DC: {
@@ -220,11 +218,26 @@ static int message_handler(void) {
 		madgwick_set_beta_gain(beta_gain);
 	}
 		break;
-	default:
-		while (1) {
-		} // trap execution if we end up here.
+	case SYSTEM_MESSAGE_RESET: {
+		if (recvd_msg->pld_len != 0) {
+			status_rsp->status = BAD_PLD_LEN;
+			break;
+		}
+		// give system time to send response out before resetting.
+		scheduler_delay_ms(10);
+		system_reset();
+	}
+		break;
+	case SYSTEM_MESSAGE_STATUS: {
+		if (recvd_msg->pld_len != 0) {
+			status_rsp->status = BAD_PLD_LEN;
+			break;
+		}
+		// Nothing to do here. Just want a status response.
+	}
 		break;
 	}
+
 	uart_transport_send_message(&rsp_msg);
 	return 0;
 }

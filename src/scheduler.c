@@ -5,19 +5,19 @@
  *      Author: jonathanwingfield
  */
 
-#include "../include/scheduler.h"
+#include <scheduler.h>
 
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../include/balancing_robot.h"
-#include "../include/interrupts.h"
-#include "../include/led.h"
-#include "../include/LPC11xx.h"
-#include "../include/motor_controller.h"
-#include "../include/profiler.h"
-#include "../include/utils.h"
+#include <balancing_robot.h>
+#include <interrupts.h>
+#include <led.h>
+#include <LPC11xx.h>
+#include <motor_controller.h>
+#include <profiler.h>
+#include <utils.h>
 
 #define NULL_CALLBACK (0)
 
@@ -30,19 +30,10 @@ typedef struct {
 static volatile task_t tasks_[NUM_TASKS];
 static volatile uint32_t enabled_task_mask_;
 static volatile uint32_t pending_task_mask_;
-static volatile uint32_t system_time_;
-
-static inline int system_idle(void) {
-	//__WFI();
-	while (pending_task_mask_ == 0) {
-	}
-	return 0;
-}
 
 void TIMER16_0_IRQHandler(void) {
 	// clear the MR0 interrupt by writing 1 to register
 	LPC_TMR16B0->IR |= BIT(0);
-	++system_time_;
 	// The loop decrements a tasks's timer only if task is enabled,
 	// and it is either periodic or has a non-zero timer associated with it,
 	// We set the task as pending if timer has expired. A periodic task's
@@ -63,15 +54,16 @@ void scheduler_init(void) {
 	}
 	enabled_task_mask_ = 0;
 	pending_task_mask_ = 0;
-	system_time_ = 0;
 
 	// enable clock gating for 16 bit timer 0
 	LPC_SYSCON->SYSAHBCLKCTRL |= BIT(7);
 	// enable interrupts upon matching with MR0, reset TC when match occurs.
 	LPC_TMR16B0->MCR = BIT(0) | BIT(1);
-	// set match register 0 to interrupt TIMER_FREQUENCY times per second (constant defined above).
-	LPC_TMR16B0->MR0 = (SystemCoreClock / SCHEDULER_FREQUENCY - 1);
-	// enable timer/counter for counting
+	// set PR so that PC counts microseconds. TC counts in milliseconds.
+	LPC_TMR16B0->PR = (SystemCoreClock / 1000000 - 1);
+	LPC_TMR16B0->MR0 = (1000000 / SCHEDULER_FREQUENCY - 1);
+	// reset counter and enable timer/counter for counting
+	LPC_TMR16B0->TC = 0;
 	LPC_TMR16B0->TCR = BIT(0);
 	// enable interrupts from timer in NVIC. Set to medium priority
 	NVIC_EnableIRQ(TIMER_16_0_IRQn);
@@ -85,9 +77,7 @@ void scheduler_run(void) {
 			pending_task_mask_ &= ~BIT(task_idx);
 			const int task_ret_val = tasks_[task_idx].task_callback();
 			if (task_ret_val == -1) {
-				// panic.
-				motor_controller_enable(false);
-				led_set_heartbeat_color(RED_LED);
+				scheduler_disable_task(task_idx);
 			}
 			if (tasks_[task_idx].periodicity != 0) {
 				tasks_[task_idx].ticks_til_next_call = tasks_[task_idx].periodicity;
@@ -173,6 +163,22 @@ int scheduler_reset_task_timer(task_id_t task_id) {
 	return ret_val;
 }
 
-uint32_t scheduler_get_system_time(void) {
-	return system_time_;
+uint32_t scheduler_get_system_time_ms(void) {
+	return LPC_TMR16B0->TC;
+}
+
+void scheduler_delay_ms(uint32_t ms) {
+	float system_time_ms = LPC_TMR16B0->TC + (LPC_TMR16B0->PC / 1000.0);
+	const float system_stop_time_ms = system_time_ms + ms;
+	while (system_time_ms < system_stop_time_ms) {
+		system_time_ms = LPC_TMR16B0->TC + (LPC_TMR16B0->PC / 1000.0);
+	}
+}
+
+void scheduler_delay_us(uint32_t us) {
+	float system_time_ms = LPC_TMR16B0->TC + (LPC_TMR16B0->PC / 1000.0);
+	const float system_stop_time_ms = system_time_ms + (us / 1000.0);
+	while (system_time_ms < system_stop_time_ms) {
+		system_time_ms = LPC_TMR16B0->TC + (LPC_TMR16B0->PC / 1000.0);
+	}
 }

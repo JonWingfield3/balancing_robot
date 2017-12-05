@@ -5,11 +5,11 @@
  *      Author: jonathanwingfield
  */
 
-#include "../include/uart_transport.h"
+#include <uart_transport.h>
 
-#include "../include/message_definitions.h"
-#include "../include/scheduler.h"
-#include "../include/uart.h"
+#include <message_definitions.h>
+#include <scheduler.h>
+#include <uart.h>
 
 static message_t msgs_[2];
 static int last_valid_msg_idx_;

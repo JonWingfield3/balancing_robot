@@ -5,10 +5,10 @@
  *      Author: jonathanwingfield
  */
 
-#include "../include/interrupts.h"
+#include <interrupts.h>
 
-#include "../include/system_LPC11xx.h"
-#include "../include/core_cmFunc.h"
+#include <system_LPC11xx.h>
+#include <core_cmFunc.h>
 
 static bool ints_enabled_;
 

@@ -5,13 +5,14 @@
  *      Author: jonathanwingfield
  */
 
-#include "../include/profiler.h"
+#include <profiler.h>
 
 #include <stdint.h>
 
-#include "../include/LPC11xx.h"
-#include "../include/scheduler.h"
-#include "../include/utils.h"
+#include <LPC11xx.h>
+
+#include <scheduler.h>
+#include <utils.h>
 
 static uint32_t start_ticks_;
 

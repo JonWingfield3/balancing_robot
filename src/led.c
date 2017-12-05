@@ -5,15 +5,15 @@
  *      Author: jonathanwingfield
  */
 
-#include "../include/led.h"
+#include <led.h>
 
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../include/balancing_robot.h"
-#include "../include/gpio.h"
-#include "../include/scheduler.h"
-#include "../include/utils.h"
+#include <balancing_robot.h>
+#include <gpio.h>
+#include <scheduler.h>
+#include <utils.h>
 
 static const gpio_port_t LED_GPIO_BASE = GPIO_PORT0;
 static const uint16_t LED_ALL_MASK = (PIN(7) | PIN(8) | PIN(9));

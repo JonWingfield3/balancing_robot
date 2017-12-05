@@ -8,7 +8,7 @@
 #ifndef UART_TRANSPORT_H_
 #define UART_TRANSPORT_H_
 
-#include "../include/message_definitions.h"
+#include <message_definitions.h>
 
 void uart_transport_init(void);
 message_t* uart_transport_get_message(void);

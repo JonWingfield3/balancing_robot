@@ -10,8 +10,6 @@
 
 #include <stdint.h>
 
-#include "../include/scheduler.h"
-
 void profiler_init(void);
 void profiler_start_measurement(void);
 uint32_t profiler_stop_measurement(void);

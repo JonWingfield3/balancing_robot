@@ -5,12 +5,12 @@
  *      Author: jonathanwingfield
  */
 
-#include "../include/gpio.h"
+#include <gpio.h>
 
 #include <stdint.h>
 
-#include "../include/LPC11xx.h"
-#include "../include/utils.h"
+#include <LPC11xx.h>
+#include <utils.h>
 
 static const uint32_t GPIO_PORTS[NUM_GPIO_PORTS] = {
 LPC_GPIO0_BASE, LPC_GPIO1_BASE, LPC_GPIO2_BASE, LPC_GPIO3_BASE };

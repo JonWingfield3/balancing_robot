@@ -5,19 +5,19 @@
  *      Author: jonathanwingfield
  */
 
-#include "../include/motor_controller.h"
+#include <motor_controller.h>
 
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../include/balancing_robot.h"
-#include "../include/filters.h"
-#include "../include/motor.h"
-#include "../include/mpu6050.h"
-#include "../include/scheduler.h"
-#include "../include/pid.h"
-#include "../include/utils.h"
+#include <balancing_robot.h>
+#include <filters.h>
+#include <motor.h>
+#include <mpu6050.h>
+#include <scheduler.h>
+#include <pid.h>
+#include <utils.h>
 
 // Point Of No Return hysteresis filter.
 static hysteresis_filter_t ponr_filter_;
@@ -46,7 +46,7 @@ static const float INITIAL_PID_TARGET = 0.0;
 static const float PID_MAX_OUTPUT = 100.0;
 
 static int motor_control_updater(void) {
-	const uint32_t sample_time = scheduler_get_system_time();
+	const uint32_t sample_time = scheduler_get_system_time_ms();
 	const float pitch = mpu6050_get_pitch();
 
 	const hysteresis_state_t previous_ponr_state = ponr_filter_.state;

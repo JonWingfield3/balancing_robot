@@ -9,7 +9,6 @@
 #define PWM_H_
 
 #include <stdint.h>
-#include "../include/LPC11xx.h"
 
 typedef enum {
 	PWM_PIN_0, PWM_PIN_1

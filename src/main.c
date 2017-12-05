@@ -7,19 +7,20 @@
 
 #include <stdbool.h>
 
-#include "../include/balancing_robot.h"
-#include "../include/gpio.h"
-#include "../include/interrupts.h"
-#include "../include/led.h"
-#include "../include/message_service.h"
-#include "../include/motor_controller.h"
-#include "../include/profiler.h"
-#include "../include/scheduler.h"
+#include <balancing_robot.h>
+#include <gpio.h>
+#include <interrupts.h>
+#include <led.h>
+#include <message_service.h>
+#include <motor_controller.h>
+#include <profiler.h>
+#include <scheduler.h>
 
 int main(void) {
 	disable_interrupts();
 	gpio_init();
 	scheduler_init();
+	system_init();
 	profiler_init();
 	message_service_init();
 	led_init();

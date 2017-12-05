@@ -5,19 +5,16 @@
  *      Author: jonathanwingfield
  */
 
-#include "../include/mpu6050.h"
+#include <mpu6050.h>
 
 #include <math.h>
 
-#include "../include/balancing_robot.h"
-#include "../include/filters.h"
-#include "../include/gpio.h"
-#include "../include/i2c.h"
-#include "../include/led.h"
-#include "../include/madgwick.h"
-#include "../include/profiler.h"
-#include "../include/scheduler.h"
-#include "../include/uart.h"
+#include <balancing_robot.h>
+#include <i2c.h>
+#include <madgwick.h>
+#include <profiler.h>
+#include <scheduler.h>
+#include <utils.h>
 
 typedef enum {
 	SELF_TEST_X = 13,
@@ -186,10 +183,10 @@ static int mpu6050_data_collector(void) {
 				- pitch_offset_;
 
 		scheduler_set_pending(MOTOR_CONTROL_UPDATER);
-		return 0;
 	} else {
-		return -1;
+		scheduler_set_pending(SYSTEM_PANIC);
 	}
+	return 0;
 }
 
 static bool comm_test(void) {
@@ -201,7 +198,7 @@ static bool comm_test(void) {
 void mpu6050_init(void) {
 	i2c_init();
 	if (!comm_test()) {
-		led_set_heartbeat_color(RED_LED);
+		scheduler_set_pending(SYSTEM_PANIC);
 		return;
 	}
 

@@ -5,9 +5,9 @@
  *      Author: jonathanwingfield
  */
 
-#include "../include/packed_float.h"
+#include <packed_float.h>
 
-#include "../include/utils.h"
+#include <utils.h>
 
 void pack_float(float val, uint8_t* data_array, float min_val, float max_val,
 		uint32_t num_bytes) {
