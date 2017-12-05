@@ -104,10 +104,6 @@ void motor_controller_init(void) {
 			motor_control_command_terminator, 0);
 }
 
-const pid_t* motor_controller_get_pid(void) {
-	return (const pid_t*) &pid_;
-}
-
 void motor_controller_enable(bool enable) {
 	motors_enabled_ = enable;
 	if (!enable) {
