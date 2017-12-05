@@ -18,16 +18,17 @@
 static const gpio_port_t LED_GPIO_BASE = GPIO_PORT0;
 static const uint16_t LED_ALL_MASK = (PIN(7) | PIN(8) | PIN(9));
 
-static const uint16_t LED_RED_MASK = PIN(7);
-static const uint16_t LED_GREEN_MASK = PIN(8);
-static const uint16_t LED_BLUE_MASK = PIN(9);
-static const uint16_t LED_WHITE_MASK = (PIN(7) | PIN(8) | PIN(9));
-static const uint16_t LED_PURPLE_MASK = (PIN(7) | PIN(9));
-static const uint16_t LED_YELLOW_MASK = (PIN(7) | PIN(8));
-static const uint16_t LED_TEAL_MASK = (PIN(8) | PIN(9));
+#define LED_RED_MASK (PIN(7))
+#define LED_GREEN_MASK (PIN(8))
+#define LED_BLUE_MASK (PIN(9))
+#define LED_WHITE_MASK (LED_RED_MASK | LED_BLUE_MASK | LED_GREEN_MASK)
+#define LED_PURPLE_MASK (LED_RED_MASK | LED_BLUE_MASK)
+#define LED_YELLOW_MASK (LED_RED_MASK | LED_GREEN_MASK)
+#define LED_TEAL_MASK (LED_BLUE_MASK | LED_GREEN_MASK)
+
 static const uint16_t LED_MASKS[NUM_LEDS] = { LED_RED_MASK, LED_GREEN_MASK,
-		LED_BLUE_MASK, LED_WHITE_MASK, LED_PURPLE_MASK, LED_TEAL_MASK,
-		LED_YELLOW_MASK };
+LED_BLUE_MASK, LED_WHITE_MASK, LED_PURPLE_MASK, LED_TEAL_MASK,
+LED_YELLOW_MASK };
 
 static led_t heartbeat_led_;
 
