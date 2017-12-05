@@ -77,6 +77,10 @@ int i2c_write(uint8_t slave_addr, uint8_t* data, uint8_t n, bool stop) {
 	transmit_end_stop_ = stop;
 	slave_addr_ = (slave_addr << 1) | W_BIT;
 	LPC_I2C->CONSET = START_FLAG;
+	//while (i2c_transaction_status_ == TRANSACTION_PENDING) {
+	//}
+	//byte_cntr_ = 0;
+	//return i2c_transaction_status_;
 	const uint32_t start_time = scheduler_get_system_time();
 	uint32_t current_time = start_time;
 	while ((current_time - start_time) < I2C_TIMEOUT_MS) {
@@ -96,6 +100,10 @@ int i2c_read(uint8_t slave_addr, uint8_t* buf, uint8_t n) {
 	byte_cntr_ = n;
 	slave_addr_ = (slave_addr << 1) | R_BIT;
 	LPC_I2C->CONSET = START_FLAG;
+	//while (i2c_transaction_status_ == TRANSACTION_PENDING) {
+	//}
+	//byte_cntr_ = 0;
+	//return i2c_transaction_status_;
 	const uint32_t start_time = scheduler_get_system_time();
 	uint32_t current_time = start_time;
 	while ((current_time - start_time) < I2C_TIMEOUT_MS) {
@@ -133,7 +141,9 @@ void I2C_IRQHandler(void) {
 	case 3: // slave_addr | W_BIT has been transmitted. ACK recvd
 		LPC_I2C->DAT = *buf_;
 		--byte_cntr_;
-		++buf_;
+		if (byte_cntr_ != 0) {
+			++buf_;
+		}
 		break;
 	case 4: // slave_addr | W_BIT has been transmitted. NACK recvd.
 		LPC_I2C->CONSET = (AA_FLAG | STOP_FLAG);
@@ -169,11 +179,11 @@ void I2C_IRQHandler(void) {
 	case 10: // data byte has just been recvd and an ACK has been returned.
 		*buf_ = LPC_I2C->DAT;
 		--byte_cntr_;
-		++buf_;
 		if (byte_cntr_ == 0) {
 			LPC_I2C->CONCLR = AA_FLAG;
 			//i2c_transaction_status_ = TRANSACTION_SUCCESS;
 		} else {
+			++buf_;
 			LPC_I2C->CONSET = AA_FLAG;
 		}
 		break;

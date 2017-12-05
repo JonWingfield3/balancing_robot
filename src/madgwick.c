@@ -18,7 +18,7 @@
 
 #include "../include/utils.h"
 
-static float sample_frequency_ = 75.0;
+static float sample_frequency_ = 60.0;
 static float beta_ = 0.1f; // 2 * proportional gain (Kp)
 
 // quaternion of sensor frame relative to auxiliary frame
@@ -28,7 +28,7 @@ void madgwick_set_sample_frequency(float fs) {
 	sample_frequency_ = fs;
 }
 
-void madgwick_set_beta(float beta) {
+void madgwick_set_beta_gain(float beta) {
 	beta_ = beta;
 }
 

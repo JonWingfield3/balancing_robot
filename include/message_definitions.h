@@ -33,6 +33,8 @@ typedef enum {
   MPU_MESSAGE_CALIBRATE,
   MPU_MESSAGE_SET_SAMPLING_FREQ,
 
+	MADGWICK_MESSAGE_SET_BETA_GAIN,
+
 	MESSAGE_ID_LAST,
 	NUM_MESSAGE_IDS = MESSAGE_ID_LAST
 } message_id_t;
@@ -165,6 +167,17 @@ typedef struct PACKED {
 typedef struct PACKED {
 	uint16_t sample_frequency;
 } mpu_sample_frequency_msg_t;
+///////////////////////////////////////////////////////////////////////////////
+
+/* Madgwick Type Message Definitions */
+///////////////////////////////////////////////////////////////////////////////
+#define MADGWICK_BETA_GAIN_MIN (0.0)
+#define MADGWICK_BETA_GAIN_MAX (1.0)
+#define MADGWICK_BETA_GAIN_BYTES (2)
+
+typedef struct PACKED {
+	uint8_t beta_gain[MADGWICK_BETA_GAIN_BYTES];
+} madgwick_beta_gain_msg_t;
 ///////////////////////////////////////////////////////////////////////////////
 
 #endif /* MESSAGE_DEFINITIONS_H_ */

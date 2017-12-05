@@ -21,7 +21,7 @@ typedef enum {
 	FORWARD_DIRECTION, REVERSE_DIRECTION, NUM_DIRECTIONS, HALTED
 } motor_direction_t;
 
-static const uint8_t MAX_DC_MAG = 100;
+static const uint8_t MAX_DC_MAG = 85;
 static motor_direction_t directions_[NUM_MOTORS] = { 0, 0 };
 
 static const gpio_port_t MOTOR_IN_GPIO_BASE = GPIO_PORT2;

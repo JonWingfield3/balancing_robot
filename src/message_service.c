@@ -14,6 +14,7 @@
 #include "../include/adc.h"
 #include "../include/balancing_robot.h"
 #include "../include/led.h"
+#include "../include/madgwick.h"
 #include "../include/message_definitions.h"
 #include "../include/motor.h"
 #include "../include/motor_controller.h"
@@ -204,6 +205,19 @@ static int message_handler(void) {
 				(mpu_sample_frequency_msg_t*) recvd_msg->pld;
 		const uint32_t sample_frequency = sys_freq_msg->sample_frequency;
 		mpu6050_set_sampling_frequency(sample_frequency);
+	}
+		break;
+	case MADGWICK_MESSAGE_SET_BETA_GAIN: {
+		if (recvd_msg->pld_len != sizeof(madgwick_beta_gain_msg_t)) {
+			status_rsp->status = BAD_PLD_LEN;
+			break;
+		}
+		const madgwick_beta_gain_msg_t* madgwick_beta_gain_msg =
+				(madgwick_beta_gain_msg_t*) recvd_msg->pld;
+		const float beta_gain = unpack_float(madgwick_beta_gain_msg->beta_gain,
+		MADGWICK_BETA_GAIN_MIN, MADGWICK_BETA_GAIN_MAX,
+		MADGWICK_BETA_GAIN_BYTES);
+		madgwick_set_beta_gain(beta_gain);
 	}
 		break;
 	default:

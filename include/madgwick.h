@@ -27,6 +27,6 @@ void madgwick_filter(const gyro_t* gyro, const accel_t* accel, quat_t* quat);
 
 // tuning functions
 void madgwick_set_sample_frequency(float fs);
-void madgwick_set_beta(float beta);
+void madgwick_set_beta_gain(float beta);
 
 #endif /* MADGWICK_H_ */

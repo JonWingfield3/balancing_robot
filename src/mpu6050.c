@@ -126,7 +126,7 @@ void mpu6050_write_reg(mpu6050_register_t reg, uint8_t data) {
 
 static int mpu6050_read_reg(mpu6050_register_t reg, uint8_t* data) {
 	uint8_t* ui8reg = (uint8_t*) &reg;
-	if (i2c_write(MPU6050_SLAVE_ADDR, &ui8reg, 1, false) == -1)
+	if (i2c_write(MPU6050_SLAVE_ADDR, ui8reg, 1, false) == -1)
 		return -1;
 	if (i2c_read(MPU6050_SLAVE_ADDR, data, 1) == -1)
 		return -1;
