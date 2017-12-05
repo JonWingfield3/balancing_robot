@@ -77,10 +77,6 @@ int i2c_write(uint8_t slave_addr, uint8_t* data, uint8_t n, bool stop) {
 	transmit_end_stop_ = stop;
 	slave_addr_ = (slave_addr << 1) | W_BIT;
 	LPC_I2C->CONSET = START_FLAG;
-	//while (i2c_transaction_status_ == TRANSACTION_PENDING) {
-	//}
-	//byte_cntr_ = 0;
-	//return i2c_transaction_status_;
 	const uint32_t start_time = scheduler_get_system_time();
 	uint32_t current_time = start_time;
 	while ((current_time - start_time) < I2C_TIMEOUT_MS) {
@@ -100,10 +96,6 @@ int i2c_read(uint8_t slave_addr, uint8_t* buf, uint8_t n) {
 	byte_cntr_ = n;
 	slave_addr_ = (slave_addr << 1) | R_BIT;
 	LPC_I2C->CONSET = START_FLAG;
-	//while (i2c_transaction_status_ == TRANSACTION_PENDING) {
-	//}
-	//byte_cntr_ = 0;
-	//return i2c_transaction_status_;
 	const uint32_t start_time = scheduler_get_system_time();
 	uint32_t current_time = start_time;
 	while ((current_time - start_time) < I2C_TIMEOUT_MS) {

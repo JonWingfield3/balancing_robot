@@ -8,9 +8,9 @@
 #include "../include/pwm.h"
 #include "../include/utils.h"
 
-#define PWM_FREQ (5000.0) // H bridge tolerates up to 10 kHz
 #define NUM_PWM_PINS (2)
 #define PWM_TIMER (LPC_TMR16B1)
+#define PWM_FREQ  (5000.0) // H bridge tolerates up to 10 kHz
 
 static uint8_t duty_cycles_[NUM_PWM_PINS];
 
@@ -24,13 +24,13 @@ void pwm_init(void) {
 
 	PWM_TIMER->TCR = BIT(1);
 	// Timer clocked by PCLK/(PR+1)
-	PWM_TIMER->PR = (SystemCoreClock/(PWM_FREQ * 100) + 1);
+	PWM_TIMER->PR = (uint32_t) ((float) SystemCoreClock / (PWM_FREQ * 100.0));
 	// configure as a timer (not a counter).
 	PWM_TIMER->CTCR = 0;
 	// enable reset on match for MAT2 (100 count val, sets DC freq)
 	PWM_TIMER->MCR = BIT(7);
 	// enable MAT[0:2] as PWM outputs.
-	PWM_TIMER->PWMC = BIT(0) | BIT(1) | BIT(2);
+	PWM_TIMER->PWMC = (BIT(0) | BIT(1) | BIT(2));
 	// set divider values. use MR2 to set 0-99 count duty cycle.
 	PWM_TIMER->MR0 = 100;
 	PWM_TIMER->MR1 = 100;

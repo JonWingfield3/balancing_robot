@@ -5,9 +5,8 @@
  *      Author: jonathanwingfield
  */
 
-#include <stdlib.h>
-
 #include "../include/pid.h"
+
 #include "../include/utils.h"
 
 void pid_init(pid_t* pid, float p_gain, float i_gain, float d_gain, float i_max,

@@ -106,7 +106,7 @@ typedef enum {
 	WHO_AM_I,
 } mpu6050_register_t;
 
-#define MPU6050_SLAVE_ADDR ((uint8_t)0x68)
+static const uint8_t MPU6050_SLAVE_ADDR = 0x68;
 
 static accel_t accel_;
 static gyro_t gyro_;
