@@ -20,13 +20,13 @@
 typedef enum {
 	MESSAGE_ID_FIRST = 0,
 
-	MOTOR_CONTROL_MESSAGE_SET_DC = MESSAGE_ID_FIRST,
-	MOTOR_CONTROL_MESSAGE_GET_DC,
+	MOTOR_CONTROL_MESSAGE_GET_DC = MESSAGE_ID_FIRST,
 	MOTOR_CONTROL_MESSAGE_CONFIG,
-	MOTOR_CONTROL_MESSAGE_COMMAND,
+	MOTOR_CONTROL_MESSAGE_STEER_COMMAND,
+	MOTOR_CONTROL_MESSAGE_DRIVE_COMMAND,
+  MOTOR_CONTROL_MESSAGE_SET_CMD_TIMEOUTS,
 
 	PID_MESSAGE_SET_GAINS,
-  PID_MESSAGE_SET_TARGET,
   PID_MESSAGE_GET_STATE,
 
 	MPU_MESSAGE_GET_IMU_DATA,
@@ -60,13 +60,17 @@ typedef enum {
 }status_t;
 
 typedef struct PACKED {
-	status_t status : 8;
+	status_t status : 7;
+	bool motors_enabled : 1;
 } status_response_t;
 ///////////////////////////////////////////////////////////////////////////////
 
-
 /* Motor Type Message Definitions */
 ///////////////////////////////////////////////////////////////////////////////
+#define DRIVE_PITCH_MIN (-0.25)
+#define DRIVE_PITCH_MAX (0.25)
+#define DRIVE_PITCH_BYTES (1)
+
 typedef struct PACKED {
 	int8_t duty_cycle_left;
 	int8_t duty_cycle_right;
@@ -77,11 +81,19 @@ typedef struct PACKED {
 } motor_control_config_msg_t;
 
 typedef struct PACKED {
-  motor_controller_command_t command : 4;
-  motor_controller_speed_t speed : 4;
-} motor_control_command_msg_t;
-///////////////////////////////////////////////////////////////////////////////
+  uint8_t drive_pitch[DRIVE_PITCH_BYTES];
+} motor_control_drive_msg_t;
 
+typedef struct PACKED {
+	int8_t steer_dc_diff;
+	// to be added to left motor, subtracted from right motor
+} motor_control_steer_msg_t;
+
+typedef struct PACKED {
+	uint16_t steer_cmd_timeout;
+	uint16_t drive_cmd_timeout;
+} motor_control_timeout_msg_t;
+///////////////////////////////////////////////////////////////////////////////
 
 /* PID Type Message Definitions*/
 ///////////////////////////////////////////////////////////////////////////////
@@ -140,7 +152,6 @@ typedef struct PACKED {
 typedef struct PACKED {
   bool weight_errors;
 }pid_state_request_msg_t;
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /* MPU6050 Type Message Definitions */

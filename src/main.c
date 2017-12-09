@@ -1,7 +1,7 @@
 /*
  ===============================================================================
  Name        : main.c
- Author      : jon wingfield
+ Author      : Jon Wingfield
  ===============================================================================
  */
 
@@ -10,7 +10,6 @@
 #include <balancing_robot.h>
 #include <gpio.h>
 #include <interrupts.h>
-#include <led.h>
 #include <message_service.h>
 #include <motor_controller.h>
 #include <profiler.h>
@@ -21,9 +20,7 @@ int main(void) {
 	gpio_init();
 	scheduler_init();
 	system_init();
-	profiler_init();
 	message_service_init();
-	led_init();
 	enable_interrupts();
 	motor_controller_init();
 

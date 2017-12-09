@@ -123,26 +123,32 @@ void mpu6050_write_reg(mpu6050_register_t reg, uint8_t data) {
 
 static int mpu6050_read_reg(mpu6050_register_t reg, uint8_t* data) {
 	uint8_t* ui8reg = (uint8_t*) &reg;
-	if (i2c_write(MPU6050_SLAVE_ADDR, ui8reg, 1, false) == -1)
+	if (i2c_write(MPU6050_SLAVE_ADDR, ui8reg, 1, false) == -1) {
 		return -1;
-	if (i2c_read(MPU6050_SLAVE_ADDR, data, 1) == -1)
+	}
+	if (i2c_read(MPU6050_SLAVE_ADDR, data, 1) == -1) {
 		return -1;
+	}
 	return 0;
 }
 
 static int mpu6050_read_reg_n(mpu6050_register_t reg, uint8_t* data, int n) {
 	uint8_t* ui8reg = (uint8_t*) &reg;
-	if (i2c_write(MPU6050_SLAVE_ADDR, ui8reg, 1, false) == -1)
+	if (i2c_write(MPU6050_SLAVE_ADDR, ui8reg, 1, false) == -1) {
 		return -1;
-	if (i2c_read(MPU6050_SLAVE_ADDR, data, n) == -1)
+	}
+	if (i2c_read(MPU6050_SLAVE_ADDR, data, n) == -1) {
 		return -1;
+	}
 	return 0;
 }
 
 static int mpu6050_data_collector(void) {
+	static uint32_t fault_counter = 0;
 	uint8_t mpu_data_buf[(GYRO_ZOUT_L - ACCEL_XOUT_H) + 1];
 	if (mpu6050_read_reg_n(ACCEL_XOUT_H, mpu_data_buf, ARRAY_SIZE(mpu_data_buf))
 			== 0) {
+		fault_counter = 0;
 
 		const int16_t ax_raw = ((int16_t) ((mpu_data_buf[reg_to_buf_index(
 				ACCEL_XOUT_H)] << 8) + mpu_data_buf[reg_to_buf_index(ACCEL_XOUT_L)]));
@@ -184,7 +190,10 @@ static int mpu6050_data_collector(void) {
 
 		scheduler_set_pending(MOTOR_CONTROL_UPDATER);
 	} else {
-		scheduler_set_pending(SYSTEM_PANIC);
+		fault_counter++;
+		if (fault_counter >= 100) {
+			scheduler_set_pending(SYSTEM_PANIC);
+		}
 	}
 	return 0;
 }

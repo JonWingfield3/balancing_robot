@@ -13,30 +13,21 @@
 
 #include <pid.h>
 
-typedef enum {
-	FORWARD_COMMAND,
-	BACKWARD_COMMAND,
-	TURN_LEFT_COMMAND,
-	TURN_RIGHT_COMMAND,
-	NUM_COMMANDS,
-} motor_controller_command_t;
-
-typedef enum {
-	SLOW_SPEED, MEDIUM_SPEED, FAST_SPEED, NUM_SPEEDS,
-} motor_controller_speed_t;
-
 void motor_controller_init(void);
 
 void motor_controller_enable(bool enable);
+bool motor_controller_enabled(void);
 
-void motor_controller_command(motor_controller_command_t cmd,
-		motor_controller_speed_t speed);
+
+void motor_controller_drive_command(float drive_pitch);
+void motor_controller_steer_command(int8_t steer_dc_diff);
+void motor_controller_set_command_timeouts(uint16_t steer_command_timeout,
+		uint16_t drive_command_timeout);
 
 // functions to access/modify motor controller's internal pid
 float motor_controller_get_pid_target(void);
 int8_t motor_controller_get_pid_output(void);
 void motor_controller_get_pid_errors(pid_error_t* pid_errors, bool weighted);
-void motor_controller_set_pid_target(float target);
 void motor_controller_set_pid_gains(float p_gain, float i_gain, float d_gain);
 
 #endif /* MOTOR_CONTROLLER_H_ */

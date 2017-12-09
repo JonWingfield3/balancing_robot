@@ -11,10 +11,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include <LPC11xx.h>
+
 #include <balancing_robot.h>
 #include <interrupts.h>
 #include <led.h>
-#include <LPC11xx.h>
 #include <motor_controller.h>
 #include <profiler.h>
 #include <utils.h>
@@ -76,7 +77,6 @@ void scheduler_init(void) {
 void scheduler_run(void) {
 	for (int task_idx = TASK_FIRST; task_idx < NUM_TASKS; ++task_idx) {
 		if ((enabled_task_mask_ & BIT(task_idx)) & pending_task_mask_) {
-
 			pending_task_mask_ &= ~BIT(task_idx);
 			const int task_ret_val = tasks_[task_idx].task_callback();
 			if (task_ret_val == -1) {
@@ -85,7 +85,6 @@ void scheduler_run(void) {
 			if (tasks_[task_idx].periodicity != 0) {
 				tasks_[task_idx].ticks_til_next_call = tasks_[task_idx].periodicity;
 			}
-
 		}
 	}
 }

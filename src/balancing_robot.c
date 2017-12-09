@@ -35,6 +35,8 @@ void system_reset(void) {
 }
 
 void system_init(void) {
+	led_init();
+	led_heartbeat_init(GREEN_LED, 2);
 	scheduler_init_task(SYSTEM_PANIC, system_panic, 0);
 	system_panicked_ = false;
 }

@@ -34,18 +34,9 @@ static int message_handler(void) {
 	rsp_msg.pld_len = sizeof(status_response_t);
 	status_response_t *status_rsp = (status_response_t*) rsp_msg.pld;
 	status_rsp->status = system_panicked() ? PANIC_MODE : NO_ERR;
+	status_rsp->motors_enabled = motor_controller_enabled();
 
 	switch (recvd_msg->msg_id) {
-	case MOTOR_CONTROL_MESSAGE_SET_DC: {
-		if (recvd_msg->pld_len != sizeof(duty_cycle_msg_t)) {
-			status_rsp->status = BAD_PLD_LEN;
-			break;
-		}
-		const duty_cycle_msg_t *dc_msg = (duty_cycle_msg_t*) recvd_msg->pld;
-		motor_set_duty_cycle(LEFT_MOTOR, dc_msg->duty_cycle_left);
-		motor_set_duty_cycle(RIGHT_MOTOR, dc_msg->duty_cycle_right);
-	}
-		break;
 	case MOTOR_CONTROL_MESSAGE_GET_DC: {
 		if (recvd_msg->pld_len != 0) {
 			status_rsp->status = BAD_PLD_LEN;
@@ -67,14 +58,38 @@ static int message_handler(void) {
 		motor_controller_enable(mtr_config_msg->enable_motor);
 	}
 		break;
-	case MOTOR_CONTROL_MESSAGE_COMMAND: {
-		if (recvd_msg->pld_len != sizeof(motor_control_command_msg_t)) {
+	case MOTOR_CONTROL_MESSAGE_STEER_COMMAND: {
+		if (recvd_msg->pld_len != sizeof(motor_control_steer_msg_t)) {
 			status_rsp->status = BAD_PLD_LEN;
+			break;
 		}
-		motor_control_command_msg_t* mtr_control_cmd_msg =
-				(motor_control_command_msg_t*) recvd_msg->pld;
-		motor_controller_command(mtr_control_cmd_msg->command,
-				mtr_control_cmd_msg->speed);
+		motor_control_steer_msg_t* motor_control_steer_msg =
+				(motor_control_steer_msg_t*) recvd_msg->pld;
+		motor_controller_steer_command(motor_control_steer_msg->steer_dc_diff);
+	}
+		break;
+	case MOTOR_CONTROL_MESSAGE_DRIVE_COMMAND: {
+		if (recvd_msg->pld_len != sizeof(motor_control_drive_msg_t)) {
+			status_rsp->status = BAD_PLD_LEN;
+			break;
+		}
+		motor_control_drive_msg_t* motor_control_drive_msg =
+				(motor_control_drive_msg_t*) recvd_msg->pld;
+		const float drive_pitch = unpack_float(motor_control_drive_msg->drive_pitch,
+		DRIVE_PITCH_MIN, DRIVE_PITCH_MAX, DRIVE_PITCH_BYTES);
+		motor_controller_drive_command(drive_pitch);
+	}
+		break;
+	case MOTOR_CONTROL_MESSAGE_SET_CMD_TIMEOUTS: {
+		if (recvd_msg->pld_len != sizeof(motor_control_timeout_msg_t)) {
+			status_rsp->status = BAD_PLD_LEN;
+			break;
+		}
+		motor_control_timeout_msg_t* motor_control_timeout_msg =
+				(motor_control_timeout_msg_t*) recvd_msg->pld;
+		motor_controller_set_command_timeouts(
+				motor_control_timeout_msg->steer_cmd_timeout,
+				motor_control_timeout_msg->drive_cmd_timeout);
 	}
 		break;
 	case PID_MESSAGE_SET_GAINS: {
@@ -87,18 +102,6 @@ static int message_handler(void) {
 		const float i_gain = (float) pid_msg->i_gain;
 		const float d_gain = (float) pid_msg->d_gain;
 		motor_controller_set_pid_gains(p_gain, i_gain, d_gain);
-	}
-		break;
-	case PID_MESSAGE_SET_TARGET: {
-		if (recvd_msg->pld_len != sizeof(pid_set_target_msg_t)) {
-			status_rsp->status = BAD_PLD_LEN;
-			break;
-		}
-		const pid_set_target_msg_t *pid_target_msg =
-				(const pid_set_target_msg_t*) recvd_msg->pld;
-		const float pid_target = unpack_float(pid_target_msg->target,
-		PID_TARGET_MIN, PID_TARGET_MAX, PID_TARGET_BYTES);
-		motor_controller_set_pid_target(pid_target);
 	}
 		break;
 	case PID_MESSAGE_GET_STATE: {
@@ -223,9 +226,12 @@ static int message_handler(void) {
 			status_rsp->status = BAD_PLD_LEN;
 			break;
 		}
+		uart_transport_send_message(&rsp_msg);
 		// give system time to send response out before resetting.
 		scheduler_delay_ms(10);
 		system_reset();
+		while (true) {
+		} // we shouldn't return but just to be safe.
 	}
 		break;
 	case SYSTEM_MESSAGE_STATUS: {

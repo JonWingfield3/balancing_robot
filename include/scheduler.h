@@ -18,7 +18,8 @@ typedef enum {
 	TASK_FIRST,
 	SYSTEM_PANIC = TASK_FIRST,
 	MPU_DATA_COLLECTOR,
-	MOTOR_CONTROL_COMMAND_TERMINATOR,
+	MOTOR_CONTROL_STEER_COMMAND_TERMINATOR,
+	MOTOR_CONTROL_DRIVE_COMMAND_TERMINATOR,
 	MOTOR_CONTROL_UPDATER,
 	UART_DATA_BYTE_HANDLER,
 	MESSAGE_HANDLER,
@@ -38,11 +39,11 @@ int scheduler_init_task(task_id_t task_id, task_callback_t task_callback,
 void scheduler_run(void);
 
 // scheduler task management functions.
-int scheduler_disable_task(task_id_t task_id);
 int scheduler_set_pending(task_id_t task_id);
 int scheduler_set_pending_in(task_id_t task_id, uint32_t ticks_til_pending);
 int scheduler_reset_task_timer(task_id_t task_id);
 int scheduler_set_task_periodicity(task_id_t task_id, uint32_t periodicity);
+int scheduler_disable_task(task_id_t task_id);
 
 // scheduler utility functions.
 uint32_t scheduler_get_system_time_ms(void);

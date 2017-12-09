@@ -31,6 +31,7 @@ LED_BLUE_MASK, LED_WHITE_MASK, LED_PURPLE_MASK, LED_TEAL_MASK,
 LED_YELLOW_MASK };
 
 static led_t heartbeat_led_;
+static bool heartbeat_enabled_;
 
 static int led_heartbeat_handler(void) {
 	static bool heartbeat_led_on = false;
@@ -39,16 +40,10 @@ static int led_heartbeat_handler(void) {
 	return 0;
 }
 
-static void led_heartbeat_init(led_t heartbeat_led, uint32_t periodicity) {
-	heartbeat_led_ = heartbeat_led;
-	scheduler_init_task(LED_HEARTBEAT_HANDLER, led_heartbeat_handler,
-			periodicity);
-}
-
 void led_init(void) {
 	gpio_pin_configure(LED_GPIO_BASE, LED_ALL_MASK, GPIO_OUTPUT);
 	gpio_pin_write(LED_GPIO_BASE, LED_ALL_MASK, LED_ALL_MASK);
-	led_heartbeat_init(GREEN_LED, SCHEDULER_FREQUENCY / 2);
+	heartbeat_enabled_ = false;
 }
 
 void led_set_state(led_t led, bool on) {
@@ -56,6 +51,22 @@ void led_set_state(led_t led, bool on) {
 			on ? ~LED_MASKS[led] : LED_ALL_MASK);
 }
 
+void led_heartbeat_init(led_t heartbeat_led, uint32_t heartbeat_frequency) {
+	heartbeat_led_ = heartbeat_led;
+	const uint32_t led_heartbeat_periodicity =
+			(uint32_t) (((float) SCHEDULER_FREQUENCY) / ((float) heartbeat_frequency));
+	scheduler_init_task(LED_HEARTBEAT_HANDLER, led_heartbeat_handler,
+			led_heartbeat_periodicity);
+	heartbeat_enabled_ = true;
+}
+
 void led_set_heartbeat_color(led_t led) {
 	heartbeat_led_ = led;
+}
+
+void led_set_heartbeat_frequency(uint32_t heartbeat_frequency) {
+	const uint32_t led_heartbeat_periodicity =
+			(uint32_t) (((float) SCHEDULER_FREQUENCY) / ((float) heartbeat_frequency));
+	scheduler_set_task_periodicity(LED_HEARTBEAT_HANDLER,
+			led_heartbeat_periodicity);
 }

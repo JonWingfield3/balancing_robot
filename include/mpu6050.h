@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 
-#define MPU6050_SAMPLE_FREQUENCY (60.0)
+#define MPU6050_SAMPLE_FREQUENCY (66.6)
 
 typedef struct {
 	float ax;

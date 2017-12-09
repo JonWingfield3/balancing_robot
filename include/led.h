@@ -25,6 +25,9 @@ typedef enum {
 
 void led_init(void);
 void led_set_state(led_t led, bool on);
+
+void led_heartbeat_init(led_t heartbeat_led, uint32_t heartbeat_frequency);
 void led_set_heartbeat_color(led_t led);
+void led_set_heartbeat_frequency(uint32_t heatbeat_frequency);
 
 #endif /* LED_H_ */
