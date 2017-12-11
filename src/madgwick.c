@@ -33,7 +33,7 @@ void madgwick_set_beta_gain(float beta) {
 }
 
 void madgwick_filter(const gyro_t* gyro, const accel_t* accel, quat_t* quat) {
-	// First alias variables to shorter names
+	// First alias variables to shorter names for calculations.
 	float q0 = quat_.q0;
 	float q1 = quat_.q1;
 	float q2 = quat_.q2;
@@ -48,10 +48,10 @@ void madgwick_filter(const gyro_t* gyro, const accel_t* accel, quat_t* quat) {
 	const float gz = gyro->gz;
 
 	// Rate of change of quaternion from gyroscope
-	float qDot1 = 0.5f * (-q1 * gx - q2 * gy - q3 * gz);
-	float qDot2 = 0.5f * (q0 * gx + q2 * gz - q3 * gy);
-	float qDot3 = 0.5f * (q0 * gy - q1 * gz + q3 * gx);
-	float qDot4 = 0.5f * (q0 * gz + q1 * gy - q2 * gx);
+	float q0_dot = 0.5f * (-q1 * gx - q2 * gy - q3 * gz);
+	float q1_dot = 0.5f * (q0 * gx + q2 * gz - q3 * gy);
+	float q2_dot = 0.5f * (q0 * gy - q1 * gz + q3 * gx);
+	float q3_dot = 0.5f * (q0 * gz + q1 * gy - q2 * gx);
 
 	// Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
 	if (!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f))) {
@@ -77,20 +77,17 @@ void madgwick_filter(const gyro_t* gyro, const accel_t* accel, quat_t* quat) {
 		const float q2q2 = q2 * q2;
 		const float q3q3 = q3 * q3;
 
-		// Gradient decent algorithm corrective step
+		// Gradient descent algorithm corrective step
 		const float s0 = _4q0 * q2q2 + _2q2 * norm_ax + _4q0 * q1q1
 				- _2q1 * norm_ay;
-
 		const float s1 = _4q1 * q3q3 - _2q3 * norm_ax + 4.0f * q0q0 * q1
 				- _2q0 * norm_ay - _4q1 + _8q1 * q1q1 + _8q1 * q2q2 + _4q1 * norm_az;
-
 		const float s2 = 4.0f * q0q0 * q2 + _2q0 * norm_ax + _4q2 * q3q3
 				- _2q3 * norm_ay - _4q2 + _8q2 * q1q1 + _8q2 * q2q2 + _4q2 * norm_az;
-
 		const float s3 = 4.0f * q1q1 * q3 - _2q1 * norm_ax + 4.0f * q2q2 * q3
 				- _2q2 * norm_ay;
 
-		// normalise step magnitude
+		// Normalize step magnitude
 		const float s_recip_norm = fast_inv_sqrt(
 				s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3);
 		const float norm_s0 = s0 * s_recip_norm;
@@ -99,17 +96,18 @@ void madgwick_filter(const gyro_t* gyro, const accel_t* accel, quat_t* quat) {
 		const float norm_s3 = s3 * s_recip_norm;
 
 		// Apply feedback step
-		qDot1 -= beta_ * norm_s0;
-		qDot2 -= beta_ * norm_s1;
-		qDot3 -= beta_ * norm_s2;
-		qDot4 -= beta_ * norm_s3;
+		q0_dot -= beta_ * norm_s0;
+		q1_dot -= beta_ * norm_s1;
+		q2_dot -= beta_ * norm_s2;
+		q3_dot -= beta_ * norm_s3;
 	}
 
 	// Integrate rate of change of quaternion to yield quaternion
-	q0 += qDot1 * (1.0f / sample_frequency_);
-	q1 += qDot2 * (1.0f / sample_frequency_);
-	q2 += qDot3 * (1.0f / sample_frequency_);
-	q3 += qDot4 * (1.0f / sample_frequency_);
+	const float sample_period = 1.0f / sample_frequency_;
+	q0 += q0_dot * sample_period;
+	q1 += q1_dot * sample_period;
+	q2 += q2_dot * sample_period;
+	q3 += q3_dot * sample_period;
 
 	// Normalize quaternion
 	const float q_recip_norm = fast_inv_sqrt(

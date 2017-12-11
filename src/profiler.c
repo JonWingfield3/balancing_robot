@@ -35,7 +35,7 @@ uint32_t profiler_stop_measurement(void) {
 	const uint32_t current_ticks = PROFILER_TMR->TC;
 	if (current_ticks < start_ticks_) {
 		// overflow has occurred during profiler measurement
-		return ((1 << 31) - start_ticks_) + current_ticks;
+		return ((1 << 16) - start_ticks_) + current_ticks;
 	} else {
 		return current_ticks - start_ticks_;
 	}

@@ -185,7 +185,7 @@ static int mpu6050_data_collector(void) {
 		temp_ = (temp_raw / 340.0) + 36.53;
 
 		madgwick_filter(&gyro_, &accel_, &quat_);
-		pitch_ = -asinf(-2.0f * ((quat_.q1) * (quat_.q3) - (quat_.q0) * (quat_.q2)))
+		pitch_ = -asinf(-2.0f * (quat_.q1 * quat_.q3 - quat_.q0 * quat_.q2))
 				- pitch_offset_;
 
 		scheduler_set_pending(MOTOR_CONTROL_UPDATER);
