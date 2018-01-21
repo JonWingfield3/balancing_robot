@@ -192,17 +192,3 @@ void I2C_IRQHandler(void) {
 	LPC_I2C->CONCLR = SI_FLAG;
 }
 
-/*	while (true) {
- for (volatile int i = 0; i < 1000000; ++i) {
- if (i2c_transaction_status_ != TRANSACTION_PENDING) {
- return i2c_transaction_status_;
- }
- }
- i2c_reset();
- return TRANSACTION_ERROR;
- }*/
-
-//	while (i2c_transaction_status_ == TRANSACTION_PENDING) {
-//	}
-//	byte_cntr_ = 0;
-//	return i2c_transaction_status_;
