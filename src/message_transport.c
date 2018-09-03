@@ -1,11 +1,11 @@
 /*
- * uart_transport.c
+ * message_transport.c
  *
  *  Created on: Nov 4, 2017
  *      Author: jonathanwingfield
  */
 
-#include <uart_transport.h>
+#include <message_transport.h>
 
 #include <message_definitions.h>
 #include <scheduler.h>
@@ -22,10 +22,10 @@ static int incoming_msg_idx_;
 
 typedef enum {
 	AWAITING_SYNC, AWAITING_HEADER, AWAITING_PLD, AWAITING_CRC, TRANSPORT_ERROR
-} uart_transport_state_t;
+} message_transport_state_t;
 
 static int uart_data_byte_handler(void) {
-	static uart_transport_state_t msg_state = 0;
+	static message_transport_state_t msg_state = 0;
 	static int pld_byte_cntr = 0;
 
 	while (uart_available() > 0) {
@@ -94,7 +94,7 @@ static int uart_data_byte_handler(void) {
 	return 0;
 }
 
-void uart_transport_init(void) {
+void message_transport_init(void) {
 	incoming_msg_idx_ = 0;
 	last_valid_msg_idx_ = 1;
 	scheduler_init_task(UART_DATA_BYTE_HANDLER, uart_data_byte_handler,
@@ -102,11 +102,11 @@ void uart_transport_init(void) {
 	uart_init();
 }
 
-message_t* uart_transport_get_message(void) {
+message_t* message_transport_get_message(void) {
 	return &msgs_[last_valid_msg_idx_];
 }
 
-void uart_transport_send_message(message_t* msg) {
+void message_transport_send_message(message_t* msg) {
 	// calculate checksum using bytewise XOR.
 	uint8_t checksum = msg->msg_header ^ SYNC_BYTE;
 	for (int i = 0; i < msg->pld_len; ++i) {

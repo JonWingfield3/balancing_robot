@@ -22,11 +22,11 @@
 #include <pid.h>
 #include <pwm.h>
 #include <scheduler.h>
-#include <uart_transport.h>
+#include <message_transport.h>
 #include <utils.h>
 
 static int message_handler(void) {
-	const message_t* recvd_msg = uart_transport_get_message();
+	const message_t* recvd_msg = message_transport_get_message();
 
 	// by default create simple status response set to NO_ERR.
 	message_t rsp_msg;
@@ -75,7 +75,7 @@ static int message_handler(void) {
 		}
 		motor_control_drive_msg_t* motor_control_drive_msg =
 				(motor_control_drive_msg_t*) recvd_msg->pld;
-		const float drive_pitch = unpack_float(motor_control_drive_msg->drive_pitch,
+		const float drive_pitch = decompress(motor_control_drive_msg->drive_pitch,
 		DRIVE_PITCH_MIN, DRIVE_PITCH_MAX, DRIVE_PITCH_BYTES);
 		motor_controller_drive_command(drive_pitch);
 	}
@@ -122,20 +122,20 @@ static int message_handler(void) {
 			pid_weighted_state_msg_t* pid_state_msg =
 					(pid_weighted_state_msg_t*) rsp_msg.pld;
 
-			pack_float(pid_target, pid_state_msg->pid_target, PID_TARGET_MIN,
+			compress(pid_target, pid_state_msg->pid_target, PID_TARGET_MIN,
 			PID_TARGET_MAX, PID_TARGET_BYTES);
-			pack_float(pid_errors.p_error, pid_state_msg->p_error,
+			compress(pid_errors.p_error, pid_state_msg->p_error,
 			PID_ERROR_WEIGHTED_MIN, PID_ERROR_WEIGHTED_MAX,
 			PID_ERROR_WEIGHTED_BYTES);
-			pack_float(pid_errors.i_error, pid_state_msg->i_error,
+			compress(pid_errors.i_error, pid_state_msg->i_error,
 			PID_ERROR_WEIGHTED_MIN, PID_ERROR_WEIGHTED_MAX,
 			PID_ERROR_WEIGHTED_BYTES);
-			pack_float(pid_errors.d_error, pid_state_msg->d_error,
+			compress(pid_errors.d_error, pid_state_msg->d_error,
 			PID_ERROR_WEIGHTED_MIN, PID_ERROR_WEIGHTED_MAX,
 			PID_ERROR_WEIGHTED_BYTES);
 
 			const float pitch = mpu6050_get_pitch();
-			pack_float(pitch, pid_state_msg->pid_input, PID_INPUT_MIN, PID_INPUT_MAX,
+			compress(pitch, pid_state_msg->pid_input, PID_INPUT_MIN, PID_INPUT_MAX,
 			PID_INPUT_BYTES);
 			pid_state_msg->pid_output = motor_controller_get_pid_output();
 		} else { // unweighted errors.
@@ -143,20 +143,20 @@ static int message_handler(void) {
 			pid_unweighted_state_msg_t* pid_state_msg =
 					(pid_unweighted_state_msg_t*) rsp_msg.pld;
 
-			pack_float(pid_target, pid_state_msg->pid_target, PID_TARGET_MIN,
+			compress(pid_target, pid_state_msg->pid_target, PID_TARGET_MIN,
 			PID_TARGET_MAX, PID_TARGET_BYTES);
-			pack_float(pid_errors.p_error, pid_state_msg->p_error,
+			compress(pid_errors.p_error, pid_state_msg->p_error,
 			P_ERROR_UNWEIGHTED_MIN,
 			P_ERROR_UNWEIGHTED_MAX, P_ERROR_UNWEIGHTED_BYTES);
-			pack_float(pid_errors.i_error, pid_state_msg->i_error,
+			compress(pid_errors.i_error, pid_state_msg->i_error,
 			I_ERROR_UNWEIGHTED_MIN,
 			I_ERROR_UNWEIGHTED_MAX, I_ERROR_UNWEIGHTED_BYTES);
-			pack_float(pid_errors.d_error, pid_state_msg->d_error,
+			compress(pid_errors.d_error, pid_state_msg->d_error,
 			D_ERROR_UNWEIGHTED_MIN,
 			D_ERROR_UNWEIGHTED_MAX, D_ERROR_UNWEIGHTED_BYTES);
 
 			const float pitch = mpu6050_get_pitch();
-			pack_float(pitch, pid_state_msg->pid_input, PID_INPUT_MIN, PID_INPUT_MAX,
+			compress(pitch, pid_state_msg->pid_input, PID_INPUT_MIN, PID_INPUT_MAX,
 			PID_INPUT_BYTES);
 			pid_state_msg->pid_output = motor_controller_get_pid_output();
 		}
@@ -172,21 +172,21 @@ static int message_handler(void) {
 
 		gyro_t gyro_data;
 		mpu6050_get_gyro(&gyro_data);
-		pack_float(gyro_data.gx, mpu_msg->gyro_x, GYRO_MIN, GYRO_MAX, GYRO_BYTES);
-		pack_float(gyro_data.gy, mpu_msg->gyro_y, GYRO_MIN, GYRO_MAX, GYRO_BYTES);
-		pack_float(gyro_data.gz, mpu_msg->gyro_z, GYRO_MIN, GYRO_MAX, GYRO_BYTES);
+		compress(gyro_data.gx, mpu_msg->gyro_x, GYRO_MIN, GYRO_MAX, GYRO_BYTES);
+		compress(gyro_data.gy, mpu_msg->gyro_y, GYRO_MIN, GYRO_MAX, GYRO_BYTES);
+		compress(gyro_data.gz, mpu_msg->gyro_z, GYRO_MIN, GYRO_MAX, GYRO_BYTES);
 
 		accel_t accel_data;
 		mpu6050_get_accel(&accel_data);
-		pack_float(accel_data.ax, mpu_msg->accel_x, ACCEL_MIN, ACCEL_MAX,
+		compress(accel_data.ax, mpu_msg->accel_x, ACCEL_MIN, ACCEL_MAX,
 		ACCEL_BYTES);
-		pack_float(accel_data.ay, mpu_msg->accel_y, ACCEL_MIN, ACCEL_MAX,
+		compress(accel_data.ay, mpu_msg->accel_y, ACCEL_MIN, ACCEL_MAX,
 		ACCEL_BYTES);
-		pack_float(accel_data.az, mpu_msg->accel_z, ACCEL_MIN, ACCEL_MAX,
+		compress(accel_data.az, mpu_msg->accel_z, ACCEL_MIN, ACCEL_MAX,
 		ACCEL_BYTES);
 
 		const float temp_data = mpu6050_get_temp();
-		pack_float(temp_data, mpu_msg->temp, TEMP_MIN, TEMP_MAX, TEMP_BYTES);
+		compress(temp_data, mpu_msg->temp, TEMP_MIN, TEMP_MAX, TEMP_BYTES);
 	}
 		break;
 	case MPU_MESSAGE_CALIBRATE: {
@@ -215,7 +215,7 @@ static int message_handler(void) {
 		}
 		const madgwick_beta_gain_msg_t* madgwick_beta_gain_msg =
 				(madgwick_beta_gain_msg_t*) recvd_msg->pld;
-		const float beta_gain = unpack_float(madgwick_beta_gain_msg->beta_gain,
+		const float beta_gain = decompress(madgwick_beta_gain_msg->beta_gain,
 		MADGWICK_BETA_GAIN_MIN, MADGWICK_BETA_GAIN_MAX,
 		MADGWICK_BETA_GAIN_BYTES);
 		madgwick_set_beta_gain(beta_gain);
@@ -226,7 +226,7 @@ static int message_handler(void) {
 			status_rsp->status = BAD_PLD_LEN;
 			break;
 		}
-		uart_transport_send_message(&rsp_msg);
+		message_transport_send_message(&rsp_msg);
 		// give system time to send response out before resetting.
 		scheduler_delay_ms(10);
 		system_reset();
@@ -244,12 +244,12 @@ static int message_handler(void) {
 		break;
 	}
 
-	uart_transport_send_message(&rsp_msg);
+	message_transport_send_message(&rsp_msg);
 	return 0;
 }
 
 void message_service_init(void) {
-	uart_transport_init();
+	message_transport_init();
 	scheduler_init_task(MESSAGE_HANDLER, message_handler, 0);
 }
 
